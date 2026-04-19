@@ -1,5 +1,9 @@
 import os
 from ultralytics import YOLO
+import torch
+import torch
+from ultralytics.nn.tasks import DetectionModel
+torch.serialization.add_safe_globals([DetectionModel])
 
 class DamageDetector:
     def __init__(self):
