@@ -5,15 +5,3 @@ opencv-python
 numpy
 python-multipart
 pydantic
-
-
-
-const OWNER_ACCOUNT = {
-  ownerId: "VN-OWNER-001",
-  name: "Vahan Netra Owner",
-  email: "owner@vahannetra.admin",
-  password: "Owner@123",
-  phone: "+91 90000 00000",
-  vehicle: "Platform Admin Access",
-  role: "owner",
-};
