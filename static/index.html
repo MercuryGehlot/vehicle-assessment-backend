@@ -1,23 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Vehicle Assessment</title>
-  <link rel="stylesheet" href="/static/style.css" />
-</head>
-<body>
-  <div class="container">
-    <h1>🚗 AI Vehicle Assessment</h1>
 
-    <div class="upload-box">
-      <input type="file" id="imageInput" accept="image/*" />
-      <button onclick="uploadImage()">Assess Vehicle</button>
-    </div>
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Build Vehicle Assessment Website</title>
+      <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
+    </head>
 
-    <div id="preview"></div>
-    <div id="result"></div>
-  </div>
-
-  <script src="/static/script.js"></script>
-</body>
-</html>
+    <body>
+      <div id="root"></div>
+      <script type="module" src="/src/main.tsx"></script>
+    </body>
+  </html>
+  
