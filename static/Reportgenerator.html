@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vahan नेत्र — AI Report Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --w:#fff;--off:#f5f8fc;--lb:#e8f1fd;
+  --blue:#1a6fdf;--blue-d:#0d47a1;
+  --green:#00897b;--green-l:#e0f2f1;--green-m:#26a69a;
+  --g1:#f1f5f9;--g2:#e2e8f0;--g4:#94a3b8;--g6:#475569;--g8:#1e293b;
+  --red:#ef4444;--amber:#f59e0b;
+  --fn:'DM Sans',sans-serif;--fm:'Space Mono',monospace;
+  --r:12px;--rl:20px;
+  --sh:0 4px 24px rgba(26,111,223,.10);
+  --tr:all .32s cubic-bezier(.4,0,.2,1);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--fn);background:var(--off);color:var(--g8);min-height:100vh}
+
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,255,255,.94);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--g2);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;height:60px;
+}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-mark{
+  width:34px;height:34px;border-radius:9px;
+  background:linear-gradient(135deg,var(--blue),var(--green));
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+.logo-text{font-family:var(--fm);font-size:14px;font-weight:700;color:var(--g8)}
+.logo-text span{color:var(--green);font-family:var(--fn);font-weight:600}
+.nav-back{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--g6);text-decoration:none;transition:var(--tr)}
+.nav-back:hover{color:var(--blue)}
+
+.page{max-width:1200px;margin:0 auto;padding:40px 48px 80px}
+.page-header{margin-bottom:40px}
+.page-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,var(--lb),var(--green-l));
+  border:1px solid rgba(26,111,223,.2);border-radius:100px;
+  padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:.8px;
+  text-transform:uppercase;color:var(--blue-d);margin-bottom:16px;
+}
+.page-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.page-title{font-size:36px;font-weight:600;letter-spacing:-1px;line-height:1.1;margin-bottom:10px}
+.page-title span{color:var(--blue)}
+.page-sub{font-size:15px;color:var(--g6);line-height:1.7}
+
+.two-col{display:grid;grid-template-columns:420px 1fr;gap:32px;align-items:start}
+
+.input-panel{
+  background:var(--w);border-radius:var(--rl);border:1px solid var(--g2);
+  box-shadow:var(--sh);overflow:hidden;position:sticky;top:80px;
+}
+.ip-header{
+  padding:18px 22px;border-bottom:1px solid var(--g2);background:var(--off);
+  display:flex;align-items:center;gap:10px;
+}
+.ip-title{font-size:14px;font-weight:600}
+.ip-body{padding:24px}
+
+.field{margin-bottom:18px}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--g6);margin-bottom:6px;letter-spacing:.3px}
+.field input,.field select,.field textarea{
+  width:100%;padding:10px 13px;border-radius:9px;border:1.5px solid var(--g2);
+  font-family:var(--fn);font-size:13px;color:var(--g8);background:var(--w);
+  outline:none;transition:border-color .2s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue)}
+.field textarea{resize:vertical;min-height:80px;line-height:1.5}
+
+.json-area{
+  width:100%;padding:12px;border-radius:9px;border:1.5px solid var(--g2);
+  font-family:var(--fm);font-size:11px;color:var(--g8);background:var(--g1);
+  outline:none;resize:vertical;min-height:140px;line-height:1.6;
+  transition:border-color .2s;
+}
+.json-area:focus{border-color:var(--blue);background:var(--w)}
+
+.section-divider{
+  display:flex;align-items:center;gap:10px;margin:20px 0;
+  font-size:10px;font-weight:700;color:var(--g4);letter-spacing:1px;text-transform:uppercase;
+}
+.section-divider::before,.section-divider::after{content:'';flex:1;height:1px;background:var(--g2)}
+
+.quick-fill-row{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.qf-btn{
+  font-size:11px;font-weight:600;padding:5px 12px;border-radius:8px;
+  border:1px solid var(--g2);background:var(--off);color:var(--g6);
+  cursor:pointer;transition:var(--tr);font-family:var(--fn);
+}
+.qf-btn:hover{background:var(--lb);color:var(--blue);border-color:rgba(26,111,223,.3)}
+
+.api-input-row{display:flex;gap:8px;align-items:stretch}
+.api-input-row input{flex:1}
+
+.style-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.style-opt{border:1.5px solid var(--g2);border-radius:10px;padding:10px 12px;cursor:pointer;transition:var(--tr)}
+.style-opt:hover{border-color:rgba(26,111,223,.4);background:var(--lb)}
+.style-opt.selected{border-color:var(--blue);background:var(--lb)}
+.style-opt-name{font-size:12px;font-weight:600;color:var(--g8);margin-bottom:2px}
+.style-opt-desc{font-size:10px;color:var(--g4)}
+
+.generate-btn{
+  width:100%;padding:14px;border-radius:10px;background:var(--blue);color:#fff;
+  font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:var(--fn);
+  transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:20px;
+}
+.generate-btn:hover{background:var(--blue-d);transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,111,223,.4)}
+.generate-btn:disabled{background:var(--g4);cursor:not-allowed;transform:none;box-shadow:none}
+
+.report-panel{
+  background:var(--w);border-radius:var(--rl);border:1px solid var(--g2);
+  box-shadow:var(--sh);overflow:hidden;
+}
+.rp-toolbar{
+  padding:14px 22px;border-bottom:1px solid var(--g2);background:var(--off);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.rp-status{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--g4)}
+.status-dot.live{background:var(--blue);animation:pipP 1s infinite}
+.status-dot.done{background:var(--green)}
+@keyframes pipP{0%,100%{opacity:1}50%{opacity:.5}}
+.toolbar-actions{display:flex;gap:8px}
+.tool-btn{
+  display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;
+  font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--g2);
+  background:var(--w);color:var(--g6);transition:var(--tr);font-family:var(--fn);
+}
+.tool-btn:hover{background:var(--g1);color:var(--g8)}
+.tool-btn.pri{background:var(--blue);color:#fff;border-color:var(--blue)}
+.tool-btn.pri:hover{background:var(--blue-d)}
+.tool-btn.green{background:var(--green);color:#fff;border-color:var(--green)}
+.tool-btn.green:hover{background:#00695c}
+
+.report-content{padding:0;min-height:600px}
+
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:500px;text-align:center;padding:48px;
+}
+.empty-icon{font-size:64px;margin-bottom:20px;opacity:.3}
+.empty-title{font-size:18px;font-weight:600;color:var(--g8);margin-bottom:8px}
+.empty-sub{font-size:14px;color:var(--g4);line-height:1.6;max-width:340px}
+
+.streaming-wrap{display:none;padding:32px;border-bottom:1px solid var(--g2)}
+.stream-progress{
+  display:flex;align-items:center;gap:12px;
+  font-size:13px;color:var(--g6);margin-bottom:16px;
+}
+.stream-dots{display:flex;gap:4px}
+.stream-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--blue);
+  animation:streamDot 1.2s ease-in-out infinite;
+}
+.stream-dot:nth-child(2){animation-delay:.2s}
+.stream-dot:nth-child(3){animation-delay:.4s}
+@keyframes streamDot{0%,80%,100%{transform:scale(.8);opacity:.5}40%{transform:scale(1);opacity:1}}
+.stream-steps{display:flex;flex-direction:column;gap:8px}
+.stream-step{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--g4);transition:var(--tr)}
+.stream-step.done{color:var(--green)}
+.stream-step.live{color:var(--blue);font-weight:500}
+.sst-icon{font-size:14px;width:18px;text-align:center}
+
+#reportFrame{display:none;padding:0;font-family:var(--fn)}
+
+.toast{
+  position:fixed;bottom:28px;right:28px;z-index:999;
+  background:var(--g8);color:#fff;border-radius:10px;padding:12px 18px;
+  font-size:13px;font-weight:500;display:flex;align-items:center;gap:10px;
+  box-shadow:0 8px 32px rgba(0,0,0,.25);
+  transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(.4,0,.2,1);
+}
+.toast.show{transform:none;opacity:1}
+
+@media(max-width:1000px){
+  .two-col{grid-template-columns:1fr}
+  .input-panel{position:static}
+}
+@media(max-width:640px){
+  nav{padding:0 20px}
+  .page{padding:28px 20px 60px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">
+    <div class="logo-mark">👁</div>
+    <span class="logo-text">Vahan <span>नेत्र</span></span>
+  </a>
+  <a class="nav-back" href="index.html">← Back to Dashboard</a>
+</nav>
+
+<div class="page">
+  <div class="page-header">
+    <div class="page-eyebrow">
+      <span class="page-eyebrow-dot"></span>
+      Claude AI · Powered Report Generation
+    </div>
+    <div class="page-title">AI <span>Damage Report</span> Generator</div>
+    <div class="page-sub">
+      Paste your backend JSON response and Claude AI will generate a professional,
+      formatted vehicle damage inspection report — ready to download as HTML or print to PDF.
+    </div>
+  </div>
+
+  <div class="two-col">
+
+    <!-- INPUT PANEL -->
+    <div class="input-panel">
+      <div class="ip-header">
+        <span style="font-size:18px">⚙️</span>
+        <span class="ip-title">Report Configuration</span>
+      </div>
+      <div class="ip-body">
+
+        <div class="field">
+          <label>FETCH FROM BACKEND</label>
+          <div class="api-input-row">
+            <input type="text" id="backendUrl" value="http://localhost:8000" placeholder="http://localhost:8000">
+          </div>
+          <div class="quick-fill-row" style="margin-top:8px">
+            <button class="qf-btn" onclick="fetchFromBackend()">🔗 Fetch Latest Result</button>
+            <button class="qf-btn" onclick="pasteDemo()">🎭 Use Demo Data</button>
+          </div>
+        </div>
+
+        <div class="section-divider">or paste JSON manually</div>
+
+        <div class="field">
+          <label>BACKEND JSON RESPONSE</label>
+          <textarea class="json-area" id="jsonInput" placeholder='{
+  "inspection_summary": {
+    "dsi_score": 42.5,
+    "overall_severity": "Moderate",
+    "triage_category": "STRUCTURAL/FUNCTIONAL"
+  },
+  "findings": [
+    { "class": "dent", "confidence": 0.94, "box": [52,110,210,270] },
+    { "class": "scratch", "confidence": 0.81, "box": [388,155,620,305] }
+  ]
+}'></textarea>
+        </div>
+
+        <div class="section-divider">vehicle details</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="field" style="margin-bottom:0">
+            <label>MAKE</label>
+            <input type="text" id="vMake" placeholder="Toyota">
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>MODEL</label>
+            <input type="text" id="vModel" placeholder="Camry">
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>YEAR</label>
+            <input type="number" id="vYear" placeholder="2022">
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>PLATE NO.</label>
+            <input type="text" id="vPlate" placeholder="MH01AB1234">
+          </div>
+        </div>
+
+        <div style="margin-top:18px" class="field">
+          <label>OWNER NAME</label>
+          <input type="text" id="vOwner" placeholder="Rahul Sharma">
+        </div>
+
+        <div class="field">
+          <label>INSPECTOR NAME</label>
+          <input type="text" id="vInspector" placeholder="Demo Inspector">
+        </div>
+
+        <div class="section-divider">report style</div>
+
+        <div style="margin-bottom:4px;font-size:11px;font-weight:700;color:var(--g6);letter-spacing:.3px">REPORT TONE</div>
+        <div class="style-grid" id="styleGrid">
+          <div class="style-opt selected" data-style="insurance" onclick="selectStyle(this)">
+            <div class="style-opt-name">🏛 Insurance</div>
+            <div class="style-opt-desc">Formal, legal-ready, precise</div>
+          </div>
+          <div class="style-opt" data-style="technical" onclick="selectStyle(this)">
+            <div class="style-opt-name">🔧 Technical</div>
+            <div class="style-opt-desc">Detailed, engineer-grade</div>
+          </div>
+          <div class="style-opt" data-style="customer" onclick="selectStyle(this)">
+            <div class="style-opt-name">👤 Customer</div>
+            <div class="style-opt-desc">Simple, jargon-free</div>
+          </div>
+          <div class="style-opt" data-style="fleet" onclick="selectStyle(this)">
+            <div class="style-opt-name">🚛 Fleet Mgmt</div>
+            <div class="style-opt-desc">Operational, cost-focused</div>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:18px">
+          <label>ADDITIONAL NOTES FOR AI</label>
+          <textarea id="aiNotes" placeholder="e.g. Vehicle was in a parking lot incident. Previous scratch on rear bumper was pre-existing." style="min-height:60px;width:100%;padding:10px 13px;border-radius:9px;border:1.5px solid var(--g2);font-family:var(--fn);font-size:13px;outline:none;resize:vertical;transition:border-color .2s"></textarea>
+        </div>
+
+        <button class="generate-btn" id="generateBtn" onclick="generateReport()">
+          <span id="generateBtnIcon">✨</span>
+          <span id="generateBtnText">Generate AI Report</span>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- REPORT PANEL -->
+    <div class="report-panel">
+      <div class="rp-toolbar">
+        <div class="rp-status">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusLabel">Ready to generate</span>
+        </div>
+        <div class="toolbar-actions">
+          <button class="tool-btn" onclick="copyReport()" id="copyBtn" style="display:none">📋 Copy HTML</button>
+          <button class="tool-btn green" onclick="downloadHTML()" id="downloadBtn" style="display:none">⬇ Download</button>
+          <button class="tool-btn pri" onclick="printReport()" id="printBtn" style="display:none">🖨 Print / PDF</button>
+        </div>
+      </div>
+
+      <div class="report-content">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">📄</div>
+          <div class="empty-title">No report generated yet</div>
+          <div class="empty-sub">
+            Paste your backend JSON response (or fetch it directly),
+            configure the options, and click <strong>Generate AI Report</strong>.
+          </div>
+        </div>
+
+        <div class="streaming-wrap" id="streamingWrap">
+          <div class="stream-progress">
+            <div class="stream-dots">
+              <div class="stream-dot"></div>
+              <div class="stream-dot"></div>
+              <div class="stream-dot"></div>
+            </div>
+            <span id="streamMsg">Claude is analyzing the damage data...</span>
+          </div>
+          <div class="stream-steps">
+            <div class="stream-step" id="ss1"><span class="sst-icon">🔍</span>Parsing damage findings</div>
+            <div class="stream-step" id="ss2"><span class="sst-icon">🧠</span>AI analyzing severity &amp; cause</div>
+            <div class="stream-step" id="ss3"><span class="sst-icon">📝</span>Writing professional assessment</div>
+            <div class="stream-step" id="ss4"><span class="sst-icon">💰</span>Estimating repair recommendations</div>
+            <div class="stream-step" id="ss5"><span class="sst-icon">✅</span>Finalizing report layout</div>
+          </div>
+        </div>
+
+        <div id="reportFrame"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <span id="toastIcon">✅</span>
+  <span id="toastMsg"></span>
+</div>
+
+<script>
+'use strict';
+
+// ── STATE ──
+var selectedStyle = 'insurance';
+var generatedHTML = '';
+var toastTimer    = null;
+var stepTimer     = null;
+
+// ── STYLE GUIDES (hoisted outside any template literal) ──
+var STYLE_GUIDES = {
+  insurance: 'Write in a formal, legally precise tone suitable for insurance claims processing. Use clear damage categorization, liability-neutral language, and include specific confidence metrics.',
+  technical: 'Write in a technical, engineer-grade tone. Include precise bounding box coordinates, pixel-level damage area estimates, and structural assessment details.',
+  customer:  'Write in simple, jargon-free language a vehicle owner can understand. Explain what each damage means practically and what repairs are typically needed.',
+  fleet:     'Write from a fleet management perspective. Focus on operational impact, downtime estimates, cost implications, and priority maintenance recommendations.'
+};
+
+// ── AUTO-FILL FROM DASHBOARD ──
+document.addEventListener('DOMContentLoaded', function() {
+  var stored = sessionStorage.getItem('vahanNetraResult');
+  if (stored) {
+    try {
+      var payload = JSON.parse(stored);
+      if (payload.assessment) {
+        document.getElementById('jsonInput').value = JSON.stringify(payload.assessment, null, 2);
+      }
+      if (payload.vehicle) {
+        var v = payload.vehicle;
+        if (v.make)  document.getElementById('vMake').value  = v.make;
+        if (v.model) document.getElementById('vModel').value = v.model;
+        if (v.year)  document.getElementById('vYear').value  = v.year;
+        if (v.plate) document.getElementById('vPlate').value = v.plate;
+      }
+      showToast('Assessment data loaded from dashboard', '📊');
+      sessionStorage.removeItem('vahanNetraResult');
+    } catch(e) {}
+  }
+});
+
+// ── STYLE SELECTION ──
+function selectStyle(el) {
+  document.querySelectorAll('.style-opt').forEach(function(o) { o.classList.remove('selected'); });
+  el.classList.add('selected');
+  selectedStyle = el.dataset.style;
+}
+
+// ── DEMO DATA ──
+function pasteDemo() {
+  document.getElementById('jsonInput').value = JSON.stringify({
+    inspection_summary: {
+      dsi_score: 42.5,
+      overall_severity: 'Moderate',
+      triage_category: 'STRUCTURAL/FUNCTIONAL'
+    },
+    processed_image_url: null,
+    findings: [
+      { class: 'dent',    confidence: 0.94, box: [52,  110, 210, 270] },
+      { class: 'dent',    confidence: 0.82, box: [195,  89, 330, 225] },
+      { class: 'scratch', confidence: 0.81, box: [388, 155, 620, 305] }
+    ]
+  }, null, 2);
+  document.getElementById('vMake').value      = 'Toyota';
+  document.getElementById('vModel').value     = 'Camry';
+  document.getElementById('vYear').value      = '2022';
+  document.getElementById('vPlate').value     = 'MH04XY5678';
+  document.getElementById('vOwner').value     = 'Rahul Sharma';
+  document.getElementById('vInspector').value = 'Demo Inspector';
+  showToast('Demo data loaded!', '🎭');
+}
+
+// ── FETCH FROM BACKEND ──
+async function fetchFromBackend() {
+  var url = document.getElementById('backendUrl').value.replace(/\/+$/, '');
+  showToast('Fetching from backend...', '🔗');
+  try {
+    var res = await fetch(url + '/', { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    showToast('Connected! Upload an image via /assess-damage/ first.', '✅');
+  } catch(e) {
+    showToast('Cannot reach backend. Use "Use Demo Data" instead.', '❌');
+  }
+}
+
+// ── STREAMING STEPS ANIMATION ──
+function startStepAnimation() {
+  var ids = ['ss1','ss2','ss3','ss4','ss5'];
+  ids.forEach(function(id) { document.getElementById(id).className = 'stream-step'; });
+  var i = 0;
+  stepTimer = setInterval(function() {
+    if (i > 0) document.getElementById(ids[i-1]).classList.add('done');
+    if (i < ids.length) { document.getElementById(ids[i]).classList.add('live'); i++; }
+    else clearInterval(stepTimer);
+  }, 900);
+}
+
+function stopStepAnimation() {
+  clearInterval(stepTimer);
+  document.querySelectorAll('.stream-step').forEach(function(el) {
+    el.className = 'stream-step done';
+  });
+}
+
+// ── BUILD AI PROMPT (pure string concatenation — no nested template literals) ──
+function buildPrompt(data, vehicle, notes, style) {
+  var findings = data.findings || [];
+  var summary  = data.inspection_summary || {};
+  var dsi      = summary.dsi_score || 0;
+  var severity = summary.overall_severity || 'Unknown';
+  var triage   = summary.triage_category || 'N/A';
+  var reportId = 'VN-' + Date.now().toString(36).toUpperCase();
+  var styleNote = STYLE_GUIDES[style] || STYLE_GUIDES.insurance;
+  var notesText = notes || 'None provided.';
+
+  var now  = new Date();
+  var date = now.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+  var time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+  var findingLines = findings.map(function(f, i) {
+    var box  = (f.box || []).map(function(v) { return Math.round(v); }).join(', ');
+    var conf = Math.round((f.confidence || 0) * 100);
+    return (i + 1) + '. Type: ' + (f.class || 'Unknown') +
+           ' | Confidence: ' + conf + '%' +
+           ' | Bounding Box: [' + box + ']';
+  }).join('\n');
+
+  return 'You are an expert vehicle damage assessment AI. Generate a complete, professional HTML vehicle damage inspection report.\n\n' +
+    'ASSESSMENT DATA:\n' +
+    '- Vehicle: ' + vehicle.year + ' ' + vehicle.make + ' ' + vehicle.model + '\n' +
+    '- License Plate: ' + vehicle.plate + '\n' +
+    '- Owner: ' + vehicle.owner + '\n' +
+    '- Inspector: ' + vehicle.inspector + '\n' +
+    '- Inspection Date: ' + date + ' at ' + time + '\n' +
+    '- Report ID: ' + reportId + '\n\n' +
+    'DAMAGE FINDINGS (' + findings.length + ' detections):\n' +
+    (findingLines || 'No findings recorded.') + '\n\n' +
+    'SEVERITY METRICS:\n' +
+    '- DSI Score: ' + dsi + '/100\n' +
+    '- Overall Severity: ' + severity + '\n' +
+    '- Triage Category: ' + triage + '\n\n' +
+    'ADDITIONAL CONTEXT: ' + notesText + '\n\n' +
+    'REPORT STYLE: ' + styleNote + '\n\n' +
+    'Generate a complete, self-contained HTML report. Wrap it EXACTLY between:\n' +
+    '<!-- REPORT_START -->\n' +
+    '...html here...\n' +
+    '<!-- REPORT_END -->\n\n' +
+    'REQUIREMENTS:\n' +
+    '1. Use ONLY inline styles (no external CSS, no link tags)\n' +
+    '2. Be a complete, beautiful, print-ready document\n' +
+    '3. Max-width 900px, centered, 60px padding\n' +
+    '4. Professional header: "Vahan Netra" branding, report ID, date/time\n' +
+    '5. Vehicle details card (make, model, year, plate, owner, inspector)\n' +
+    '6. DAMAGE FINDINGS section: individual card per finding with type badge, confidence bar, bounding box, description\n' +
+    '7. DSI SEVERITY METER: visual gauge 0-100, green under 40, amber 40-70, red over 70\n' +
+    '8. TRIAGE ASSESSMENT: category + recommended action\n' +
+    '9. AI ANALYSIS: 3-4 paragraphs on probable cause, affected components, repair urgency\n' +
+    '10. RECOMMENDED ACTIONS: prioritized numbered list\n' +
+    '11. COST ESTIMATE in INR: cosmetic Rs.2000-8000, structural Rs.15000-60000+\n' +
+    '12. Footer with Vahan Netra branding, report ID, legal disclaimer\n' +
+    '13. Cards with subtle shadows, 12px rounded corners, professional spacing\n' +
+    '14. Color badges: green=low severity, amber=moderate, red=high\n' +
+    '15. Print-friendly @media print block in a style tag\n\n' +
+    'Color palette: white background, #1a6fdf blue, #00897b green, #1e293b dark text.\n' +
+    'Make it detailed, intelligent, and professional. Generate the complete HTML now.';
+}
+
+// ── GENERATE REPORT ──
+async function generateReport() {
+  var raw = document.getElementById('jsonInput').value.trim();
+  if (!raw) { showToast('Please paste the backend JSON response first', '⚠️'); return; }
+
+  var assessmentData;
+  try {
+    assessmentData = JSON.parse(raw);
+  } catch(e) {
+    showToast('Invalid JSON — check your pasted data', '❌');
+    return;
+  }
+
+  var vehicle = {
+    make:      document.getElementById('vMake').value      || 'Unknown',
+    model:     document.getElementById('vModel').value     || 'Unknown',
+    year:      document.getElementById('vYear').value      || 'Unknown',
+    plate:     document.getElementById('vPlate').value     || 'N/A',
+    owner:     document.getElementById('vOwner').value     || 'N/A',
+    inspector: document.getElementById('vInspector').value || 'N/A'
+  };
+  var notes = document.getElementById('aiNotes').value || '';
+
+  setGenerating(true);
+  document.getElementById('emptyState').style.display    = 'none';
+  document.getElementById('reportFrame').style.display   = 'none';
+  document.getElementById('streamingWrap').style.display = 'block';
+  setStatus('live', 'Claude AI is generating your report...');
+  startStepAnimation();
+
+  var prompt = buildPrompt(assessmentData, vehicle, notes, selectedStyle);
+
+  try {
+    var response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!response.ok) {
+      var err = await response.json();
+      throw new Error((err.error && err.error.message) || ('HTTP ' + response.status));
+    }
+
+    var data = await response.json();
+    var htmlContent = '';
+    for (var i = 0; i < data.content.length; i++) {
+      if (data.content[i].type === 'text') { htmlContent = data.content[i].text; break; }
+    }
+
+    var match = htmlContent.match(/<!-- REPORT_START -->([\s\S]*?)<!-- REPORT_END -->/);
+    generatedHTML = match ? match[1].trim() : htmlContent;
+
+    stopStepAnimation();
+    setTimeout(function() { renderReport(generatedHTML); }, 500);
+
+  } catch(err) {
+    stopStepAnimation();
+    setGenerating(false);
+    document.getElementById('streamingWrap').style.display = 'none';
+    document.getElementById('emptyState').style.display    = 'flex';
+    setStatus('idle', 'Generation failed');
+    showToast('Error: ' + err.message, '❌');
+  }
+}
+
+// ── RENDER REPORT ──
+function renderReport(html) {
+  var frame = document.getElementById('reportFrame');
+  frame.innerHTML = html;
+  frame.style.display = 'block';
+  document.getElementById('streamingWrap').style.display = 'none';
+  document.getElementById('copyBtn').style.display     = 'flex';
+  document.getElementById('downloadBtn').style.display = 'flex';
+  document.getElementById('printBtn').style.display    = 'flex';
+  setStatus('done', 'Report generated successfully');
+  setGenerating(false);
+  showToast('AI report generated! 🎉', '✅');
+  document.getElementById('reportFrame').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── DOWNLOAD ──
+function downloadHTML() {
+  if (!generatedHTML) { showToast('No report to download', '⚠️'); return; }
+  var full = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Vahan Netra — Damage Report</title></head><body>' + generatedHTML + '</body></html>';
+  var a = document.createElement('a');
+  a.href     = URL.createObjectURL(new Blob([full], { type: 'text/html' }));
+  a.download = 'vahan_netra_report_' + Date.now() + '.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('HTML report downloaded!', '⬇');
+}
+
+function copyReport() {
+  if (!generatedHTML) { showToast('No report to copy', '⚠️'); return; }
+  navigator.clipboard.writeText(generatedHTML)
+    .then(function() { showToast('Report HTML copied!', '📋'); })
+    .catch(function() { showToast('Copy failed — try download instead', '❌'); });
+}
+
+function printReport() {
+  if (!generatedHTML) { showToast('No report to print', '⚠️'); return; }
+  var win = window.open('', '_blank');
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Vahan Netra — Report</title></head><body>' + generatedHTML + '</body></html>');
+  win.document.close();
+  setTimeout(function() { win.focus(); win.print(); }, 600);
+}
+
+// ── UI HELPERS ──
+function setGenerating(loading) {
+  var btn  = document.getElementById('generateBtn');
+  var icon = document.getElementById('generateBtnIcon');
+  var text = document.getElementById('generateBtnText');
+  btn.disabled = loading;
+  icon.textContent = loading ? '⏳' : '✨';
+  text.textContent = loading ? 'Generating...' : 'Generate AI Report';
+}
+
+function setStatus(s, label) {
+  var dot = document.getElementById('statusDot');
+  dot.className = 'status-dot';
+  if (s === 'live') dot.classList.add('live');
+  if (s === 'done') dot.classList.add('done');
+  document.getElementById('statusLabel').textContent = label;
+}
+
+function showToast(msg, icon) {
+  icon = icon || '✅';
+  clearTimeout(toastTimer);
+  document.getElementById('toastMsg').textContent  = msg;
+  document.getElementById('toastIcon').textContent = icon;
+  var t = document.getElementById('toast');
+  t.classList.add('show');
+  toastTimer = setTimeout(function() { t.classList.remove('show'); }, 4200);
+}
+</script>
+</body>
+</html>
